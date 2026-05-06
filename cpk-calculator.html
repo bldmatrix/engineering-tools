@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cp Cpk Calculator — Free Process Capability Calculator Online</title>
+<meta name="description" content="Calculate Cp and Cpk process capability indices instantly. Enter USL, LSL, mean, and standard deviation to measure your process performance. Free quality engineering calculator with Six Sigma interpretation.">
+<meta name="keywords" content="Cpk calculator, Cp calculator, process capability calculator, Cp Cpk formula, SPC calculator, Six Sigma calculator, process capability index online">
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f1117; color: #e2e8f0; min-height: 100vh; font-size: 15px; line-height: 1.6; }
+
+header { background: #161b27; border-bottom: 1px solid #2d3748; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; position: sticky; top: 0; z-index: 100; }
+.logo { font-size: 15px; font-weight: 700; color: #f6ad55; letter-spacing: .04em; text-decoration: none; }
+nav { display: flex; gap: 6px; flex-wrap: wrap; }
+nav a { font-size: 12px; color: #718096; text-decoration: none; padding: 4px 10px; border-radius: 6px; border: 1px solid transparent; transition: all .15s; }
+nav a:hover { border-color: #2d3748; color: #e2e8f0; background: #1a202c; }
+nav a.active { color: #f6ad55; border-color: rgba(246,173,85,0.3); background: rgba(246,173,85,0.08); }
+
+.wrap { max-width: 800px; margin: 0 auto; padding: 0 20px; }
+.hero { text-align: center; padding: 48px 0 32px; }
+.tag { display: inline-block; font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: #f6ad55; background: rgba(246,173,85,0.1); border: 1px solid rgba(246,173,85,0.3); border-radius: 20px; padding: 4px 14px; margin-bottom: 18px; }
+h1 { font-size: clamp(26px,5vw,40px); font-weight: 700; margin-bottom: 12px; line-height: 1.2; }
+h1 em { color: #f6ad55; font-style: normal; }
+.sub { font-size: 15px; color: #718096; max-width: 500px; margin: 0 auto; }
+
+.card { background: #161b27; border: 1px solid #2d3748; border-radius: 14px; padding: 28px; margin-bottom: 20px; }
+
+/* RESULTS */
+.result-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 24px; }
+.result-item { background: #1a202c; border: 1px solid #2d3748; border-radius: 10px; padding: 16px; text-align: center; transition: all .3s; }
+.result-item.primary { background: rgba(246,173,85,0.08); border-color: rgba(246,173,85,0.3); }
+.r-label { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #718096; margin-bottom: 6px; }
+.result-item.primary .r-label { color: #f6ad55; }
+.r-val { font-size: 32px; font-weight: 800; color: #e2e8f0; line-height: 1; transition: color .3s; }
+.result-item.primary .r-val { font-size: 40px; }
+.r-sub { font-size: 11px; color: #4a5568; margin-top: 4px; }
+
+/* SIGMA BADGE */
+.sigma-box { text-align: center; margin-bottom: 24px; }
+.sigma-badge { display: inline-block; font-size: 14px; font-weight: 700; letter-spacing: .06em; padding: 8px 24px; border-radius: 30px; transition: all .3s; }
+
+/* FORMULA */
+.formula { background: #1a202c; border: 1px solid #2d3748; border-radius: 8px; padding: 14px 16px; font-family: 'Courier New', monospace; font-size: 12px; color: #718096; margin-bottom: 24px; line-height: 2.2; }
+.formula b { color: #e2e8f0; }
+.formula .hi { color: #f6ad55; }
+.formula-row { display: flex; justify-content: center; gap: 32px; flex-wrap: wrap; }
+
+/* INPUTS */
+.inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.input-group { display: flex; flex-direction: column; gap: 6px; }
+.input-group.full { grid-column: span 2; }
+.input-label { font-size: 13px; font-weight: 600; color: #e2e8f0; }
+.input-desc { font-size: 11px; color: #4a5568; }
+input[type="number"] { width: 100%; background: #1a202c; border: 1px solid #2d3748; border-radius: 8px; padding: 12px 14px; font-size: 16px; font-weight: 600; color: #f6ad55; outline: none; transition: border-color .2s; -moz-appearance: textfield; }
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+input[type="number"]:focus { border-color: #f6ad55; }
+
+/* VISUAL DISTRIBUTION */
+.dist-wrap { margin-bottom: 8px; }
+.dist-label { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: #718096; margin-bottom: 10px; }
+.dist-canvas-wrap { position: relative; height: 80px; background: #1a202c; border: 1px solid #2d3748; border-radius: 10px; overflow: hidden; }
+canvas#dist-canvas { width: 100%; height: 100%; }
+.spec-label { display: flex; justify-content: space-between; font-size: 11px; color: #718096; margin-top: 6px; font-family: 'Courier New', monospace; }
+
+/* BENCHMARK */
+.bench-rows { display: flex; flex-direction: column; }
+.bench-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #2d3748; }
+.bench-row:last-child { border-bottom: none; }
+.bench-name { font-size: 13px; color: #e2e8f0; min-width: 140px; }
+.bench-track { flex: 1; height: 6px; background: #2d3748; border-radius: 3px; overflow: hidden; }
+.bench-fill { height: 100%; border-radius: 3px; }
+.bench-val { font-size: 12px; font-weight: 600; color: #718096; min-width: 36px; text-align: right; font-family: 'Courier New', monospace; }
+.you-row { background: rgba(246,173,85,0.07); border-radius: 8px; padding: 10px 8px !important; border: 1px solid rgba(246,173,85,0.2) !important; margin-top: 8px; }
+
+/* PRESETS */
+.presets { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+.preset-btn { font-size: 12px; font-weight: 500; padding: 5px 12px; border-radius: 6px; border: 1px solid #2d3748; background: transparent; color: #718096; cursor: pointer; transition: all .15s; }
+.preset-btn:hover { border-color: #f6ad55; color: #f6ad55; background: rgba(246,173,85,0.06); }
+
+.section-label { font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: #718096; margin-bottom: 14px; }
+.ad-slot { background: #161b27; border: 1px dashed #2d3748; border-radius: 10px; padding: 20px; text-align: center; font-size: 12px; font-family: monospace; color: #4a5568; margin: 20px 0; }
+
+article { background: #161b27; border: 1px solid #2d3748; border-radius: 14px; padding: 32px; margin-bottom: 20px; }
+article h2 { font-size: 22px; font-weight: 700; margin-bottom: 14px; }
+article h3 { font-size: 16px; font-weight: 600; margin: 22px 0 10px; }
+article p { font-size: 14px; color: #a0aec0; margin-bottom: 14px; line-height: 1.8; }
+article ul { padding-left: 18px; margin-bottom: 14px; }
+article li { font-size: 14px; color: #a0aec0; margin-bottom: 6px; }
+article strong { color: #e2e8f0; }
+
+table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 13px; }
+thead th { background: #1a202c; color: #718096; font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; padding: 10px 12px; text-align: left; border-bottom: 1px solid #2d3748; }
+tbody td { padding: 10px 12px; color: #a0aec0; border-bottom: 1px solid #2d3748; }
+tbody td:first-child { color: #e2e8f0; font-weight: 600; }
+tbody tr:last-child td { border-bottom: none; }
+
+.tools-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(190px,1fr)); gap: 10px; margin-bottom: 36px; }
+.tool-link { background: #161b27; border: 1px solid #2d3748; border-radius: 10px; padding: 14px 16px; text-decoration: none; display: flex; align-items: center; gap: 12px; color: #e2e8f0; transition: border-color .15s; }
+.tool-link:hover { border-color: #f6ad55; background: rgba(246,173,85,0.06); }
+.tool-icon { font-size: 22px; width: 36px; text-align: center; }
+.tool-name { font-size: 13px; font-weight: 600; }
+.tool-desc { font-size: 11px; color: #718096; }
+
+footer { border-top: 1px solid #2d3748; padding: 28px 20px; text-align: center; }
+footer p { font-size: 12px; color: #4a5568; line-height: 1.8; }
+footer a { color: #718096; text-decoration: none; }
+footer a:hover { color: #f6ad55; }
+
+@media (max-width: 560px) {
+  .card { padding: 18px 14px; }
+  .result-grid { grid-template-columns: 1fr 1fr; }
+  .inputs { grid-template-columns: 1fr; }
+  .input-group.full { grid-column: span 1; }
+  article { padding: 20px 16px; }
+  nav { display: none; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <a class="logo" href="index.html">&#9881; ENGTOOLBOX</a>
+  <nav>
+    <a href="oee-calculator.html">OEE</a>
+    <a href="takt-time-calculator.html">Takt Time</a>
+    <a href="cpk-calculator.html" class="active">Cp/Cpk</a>
+    <a href="eoq-calculator.html">EOQ</a>
+    <a href="index.html">All Tools</a>
+  </nav>
+</header>
+
+<main>
+<div class="wrap">
+
+  <section class="hero">
+    <div class="tag">Quality Engineering Calculator</div>
+    <h1>Cp / Cpk Calculator<br><em>Process Capability Analysis</em></h1>
+    <p class="sub">Enter your specification limits, process mean, and standard deviation to instantly measure your process capability with Six Sigma interpretation.</p>
+  </section>
+
+  <!-- CALCULATOR -->
+  <div class="card">
+
+    <!-- Results -->
+    <div class="result-grid">
+      <div class="result-item">
+        <div class="r-label">Cp (Potential)</div>
+        <div class="r-val" id="r-cp">1.33</div>
+        <div class="r-sub">process spread</div>
+      </div>
+      <div class="result-item primary">
+        <div class="r-label">Cpk (Performance)</div>
+        <div class="r-val" id="r-cpk">1.33</div>
+        <div class="r-sub">centred capability</div>
+      </div>
+      <div class="result-item">
+        <div class="r-label">Sigma Level</div>
+        <div class="r-val" id="r-sigma">4.0&#963;</div>
+        <div class="r-sub">process sigma</div>
+      </div>
+    </div>
+
+    <!-- Sigma badge -->
+    <div class="sigma-box">
+      <span class="sigma-badge" id="sigma-badge" style="background:rgba(34,197,94,0.12);color:#22c55e;border:1px solid rgba(34,197,94,0.3)">Capable Process</span>
+    </div>
+
+    <!-- Formula -->
+    <div class="formula">
+      <div class="formula-row">
+        <span><b>Cp</b> = (USL &minus; LSL) &divide; (6&#963;) = (<span class="hi" id="f-usl">10</span> &minus; <span class="hi" id="f-lsl">4</span>) &divide; (6 &times; <span class="hi" id="f-std">0.75</span>) = <b id="f-cp">1.33</b></span>
+      </div>
+      <div class="formula-row" style="margin-top:6px">
+        <span><b>Cpk</b> = min[ (USL &minus; &mu;) &divide; 3&#963;, (&mu; &minus; LSL) &divide; 3&#963; ] = min[ <span class="hi" id="f-cpu">1.33</span>, <span class="hi" id="f-cpl">1.33</span> ] = <b id="f-cpk">1.33</b></span>
+      </div>
+    </div>
+
+    <!-- Visual distribution -->
+    <div class="dist-wrap">
+      <div class="dist-label">Process Distribution vs Specification Limits</div>
+      <div class="dist-canvas-wrap">
+        <canvas id="dist-canvas"></canvas>
+      </div>
+      <div class="spec-label">
+        <span>LSL: <span id="lsl-lbl">4.00</span></span>
+        <span>Mean: <span id="mean-lbl">7.00</span></span>
+        <span>USL: <span id="usl-lbl">10.00</span></span>
+      </div>
+    </div>
+
+    <!-- Presets -->
+    <div class="section-label" style="margin-top:20px">Quick Examples</div>
+    <div class="presets">
+      <button class="preset-btn" onclick="setPreset(10,4,7,0.75)">Centred capable</button>
+      <button class="preset-btn" onclick="setPreset(10,4,8,0.75)">Off-centre</button>
+      <button class="preset-btn" onclick="setPreset(10,4,7,0.5)">Six Sigma</button>
+      <button class="preset-btn" onclick="setPreset(10,4,7,1.2)">Not capable</button>
+    </div>
+
+    <!-- Inputs -->
+    <div class="inputs">
+      <div class="input-group">
+        <div class="input-label">USL — Upper Spec Limit</div>
+        <div class="input-desc">Maximum acceptable value</div>
+        <input type="number" id="inp-usl" value="10" step="0.01" oninput="calc()">
+      </div>
+      <div class="input-group">
+        <div class="input-label">LSL — Lower Spec Limit</div>
+        <div class="input-desc">Minimum acceptable value</div>
+        <input type="number" id="inp-lsl" value="4" step="0.01" oninput="calc()">
+      </div>
+      <div class="input-group">
+        <div class="input-label">Process Mean (&mu;)</div>
+        <div class="input-desc">Average of your measurements</div>
+        <input type="number" id="inp-mean" value="7" step="0.01" oninput="calc()">
+      </div>
+      <div class="input-group">
+        <div class="input-label">Std Deviation (&sigma;)</div>
+        <div class="input-desc">Standard deviation of process</div>
+        <input type="number" id="inp-std" value="0.75" step="0.001" min="0.001" oninput="calc()">
+      </div>
+    </div>
+  </div>
+
+  <!-- BENCHMARK CARD -->
+  <div class="card">
+    <div class="section-label">Cpk Benchmark — Industry Standards</div>
+    <div class="bench-rows">
+      <div class="bench-row">
+        <div class="bench-name">&#11088; Six Sigma (2.0+)</div>
+        <div class="bench-track"><div class="bench-fill" style="width:100%;background:#22c55e"></div></div>
+        <div class="bench-val">2.00</div>
+      </div>
+      <div class="bench-row">
+        <div class="bench-name">World class (1.67)</div>
+        <div class="bench-track"><div class="bench-fill" style="width:83%;background:#38b2ac"></div></div>
+        <div class="bench-val">1.67</div>
+      </div>
+      <div class="bench-row">
+        <div class="bench-name">Capable (1.33)</div>
+        <div class="bench-track"><div class="bench-fill" style="width:66%;background:#f6ad55"></div></div>
+        <div class="bench-val">1.33</div>
+      </div>
+      <div class="bench-row">
+        <div class="bench-name">Minimum (1.00)</div>
+        <div class="bench-track"><div class="bench-fill" style="width:50%;background:#fc8181"></div></div>
+        <div class="bench-val">1.00</div>
+      </div>
+      <div class="bench-row">
+        <div class="bench-name">Not capable (&lt;1.00)</div>
+        <div class="bench-track"><div class="bench-fill" style="width:25%;background:#ef4444"></div></div>
+        <div class="bench-val">&lt;1.00</div>
+      </div>
+      <div class="bench-row you-row">
+        <div class="bench-name" style="color:#f6ad55;font-weight:700">&#9658; Your Cpk</div>
+        <div class="bench-track"><div class="bench-fill" id="you-bar" style="width:66%;background:#f6ad55"></div></div>
+        <div class="bench-val" id="you-val" style="color:#f6ad55">1.33</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ad-slot">&lt;!-- GOOGLE ADSENSE CODE HERE --&gt;</div>
+
+  <!-- ARTICLE -->
+  <article>
+    <h2>What are Cp and Cpk?</h2>
+    <p><strong>Cp</strong> and <strong>Cpk</strong> are process capability indices used in Statistical Process Control (SPC) to measure how well a manufacturing process produces output within specification limits. Together they answer two different questions about your process.</p>
+
+    <h3>Cp vs Cpk — What's the Difference?</h3>
+    <ul>
+      <li><strong>Cp (Process Capability)</strong> — Measures the <em>potential</em> capability assuming the process is perfectly centred between the spec limits. It only looks at process spread relative to the tolerance.</li>
+      <li><strong>Cpk (Process Capability Index)</strong> — Measures <em>actual</em> capability accounting for where the process mean sits within the spec limits. Always equal to or less than Cp.</li>
+    </ul>
+    <p>If Cp is high but Cpk is low, your process has enough spread to be capable but is not centred correctly — it is shifted toward one of the spec limits.</p>
+
+    <h3>Cp / Cpk Interpretation Table</h3>
+    <table>
+      <thead><tr><th>Cpk Value</th><th>Classification</th><th>PPM Defects (approx)</th><th>Action</th></tr></thead>
+      <tbody>
+        <tr><td>&ge; 2.00</td><td>Six Sigma</td><td>3.4 PPM</td><td>Exceptional — maintain</td></tr>
+        <tr><td>1.67 – 1.99</td><td>World Class</td><td>~64 PPM</td><td>Excellent — monitor</td></tr>
+        <tr><td>1.33 – 1.66</td><td>Capable</td><td>~64–6,210 PPM</td><td>Good — standard target</td></tr>
+        <tr><td>1.00 – 1.32</td><td>Marginal</td><td>~6,210–66,807 PPM</td><td>Improve — at risk</td></tr>
+        <tr><td>&lt; 1.00</td><td>Not Capable</td><td>&gt;66,807 PPM</td><td>Urgent action needed</td></tr>
+      </tbody>
+    </table>
+
+    <h3>How to Improve Cpk</h3>
+    <ul>
+      <li><strong>Low Cp AND low Cpk:</strong> Process variation is too wide. Reduce variability through machine calibration, operator training, or material consistency.</li>
+      <li><strong>High Cp but low Cpk:</strong> Process is capable but off-centre. Adjust the process mean toward the target — shift the distribution without changing its spread.</li>
+      <li><strong>Both high:</strong> Process is capable and centred. Implement control charts to maintain this state.</li>
+    </ul>
+    <p>Use this free Cp Cpk calculator to quickly assess any process and identify whether you need to reduce variation, re-centre the process, or both.</p>
+  </article>
+
+  <!-- RELATED -->
+  <div class="section-label" style="margin-bottom:12px">Related Industrial Engineering Calculators</div>
+  <div class="tools-grid">
+    <a class="tool-link" href="oee-calculator.html"><span class="tool-icon">&#128200;</span><div><div class="tool-name">OEE Calculator</div><div class="tool-desc">Equipment effectiveness</div></div></a>
+    <a class="tool-link" href="takt-time-calculator.html"><span class="tool-icon">&#9201;</span><div><div class="tool-name">Takt Time</div><div class="tool-desc">Production pacing</div></div></a>
+    <a class="tool-link" href="eoq-calculator.html"><span class="tool-icon">&#128230;</span><div><div class="tool-name">EOQ Calculator</div><div class="tool-desc">Order quantity</div></div></a>
+    <a class="tool-link" href="safety-stock-calculator.html"><span class="tool-icon">&#128737;</span><div><div class="tool-name">Safety Stock</div><div class="tool-desc">Inventory buffer</div></div></a>
+    <a class="tool-link" href="pert-calculator.html"><span class="tool-icon">&#128197;</span><div><div class="tool-name">PERT Calculator</div><div class="tool-desc">Project duration</div></div></a>
+    <a class="tool-link" href="cycle-time-calculator.html"><span class="tool-icon">&#128260;</span><div><div class="tool-name">Cycle Time</div><div class="tool-desc">Bottleneck analysis</div></div></a>
+  </div>
+
+  <div class="ad-slot">&lt;!-- SECOND ADSENSE UNIT HERE --&gt;</div>
+
+</div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p><strong style="color:#718096">Engineering Toolbox</strong> — Free industrial engineering calculators<br>
+    <a href="index.html">All Tools</a> &middot; <a href="about.html">About</a></p>
+    <p style="margin-top:8px">Based on AIAG SPC Manual and ISO 21747. Always validate with your quality team.</p>
+  </div>
+</footer>
+
+<script>
+function setPreset(usl,lsl,mean,std) {
+  document.getElementById('inp-usl').value  = usl;
+  document.getElementById('inp-lsl').value  = lsl;
+  document.getElementById('inp-mean').value = mean;
+  document.getElementById('inp-std').value  = std;
+  calc();
+}
+
+function drawDist(usl, lsl, mean, std) {
+  var canvas = document.getElementById('dist-canvas');
+  var W = canvas.offsetWidth || 700;
+  var H = canvas.offsetHeight || 80;
+  canvas.width  = W;
+  canvas.height = H;
+  var ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, W, H);
+
+  var span  = usl - lsl;
+  var extra = span * 0.4;
+  var xMin  = lsl - extra;
+  var xMax  = usl + extra;
+
+  function toX(v) { return ((v - xMin) / (xMax - xMin)) * W; }
+
+  // Normal distribution pdf
+  function pdf(x) { return (1/(std*Math.sqrt(2*Math.PI))) * Math.exp(-0.5*Math.pow((x-mean)/std,2)); }
+
+  // Find peak
+  var peak = pdf(mean);
+
+  // Draw filled curve
+  ctx.beginPath();
+  var steps = 200;
+  for (var i = 0; i <= steps; i++) {
+    var x = xMin + (xMax - xMin) * i / steps;
+    var y = H - (pdf(x) / peak) * (H * 0.82);
+    if (i === 0) ctx.moveTo(toX(x), y);
+    else ctx.lineTo(toX(x), y);
+  }
+  ctx.lineTo(toX(xMax), H);
+  ctx.lineTo(toX(xMin), H);
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(246,173,85,0.15)';
+  ctx.fill();
+
+  // Curve line
+  ctx.beginPath();
+  for (var i = 0; i <= steps; i++) {
+    var x = xMin + (xMax - xMin) * i / steps;
+    var y = H - (pdf(x) / peak) * (H * 0.82);
+    if (i === 0) ctx.moveTo(toX(x), y);
+    else ctx.lineTo(toX(x), y);
+  }
+  ctx.strokeStyle = '#f6ad55';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // USL line
+  ctx.beginPath();
+  ctx.moveTo(toX(usl), 0);
+  ctx.lineTo(toX(usl), H);
+  ctx.strokeStyle = '#ef4444';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([4,3]);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // LSL line
+  ctx.beginPath();
+  ctx.moveTo(toX(lsl), 0);
+  ctx.lineTo(toX(lsl), H);
+  ctx.strokeStyle = '#ef4444';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([4,3]);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Mean line
+  ctx.beginPath();
+  ctx.moveTo(toX(mean), 0);
+  ctx.lineTo(toX(mean), H);
+  ctx.strokeStyle = '#38b2ac';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  // Labels
+  ctx.font = '10px monospace';
+  ctx.fillStyle = '#ef4444';
+  ctx.textAlign = 'center';
+  if (toX(usl) > 20 && toX(usl) < W-10) { ctx.fillText('USL', toX(usl), 12); }
+  if (toX(lsl) > 10 && toX(lsl) < W-20) { ctx.fillText('LSL', toX(lsl), 12); }
+  ctx.fillStyle = '#38b2ac';
+  ctx.fillText('μ', toX(mean), 22);
+}
+
+function calc() {
+  var usl  = parseFloat(document.getElementById('inp-usl').value);
+  var lsl  = parseFloat(document.getElementById('inp-lsl').value);
+  var mean = parseFloat(document.getElementById('inp-mean').value);
+  var std  = parseFloat(document.getElementById('inp-std').value) || 0.001;
+
+  if (isNaN(usl) || isNaN(lsl) || isNaN(mean) || usl <= lsl) return;
+
+  var cp  = (usl - lsl) / (6 * std);
+  var cpu = (usl - mean) / (3 * std);
+  var cpl = (mean - lsl) / (3 * std);
+  var cpk = Math.min(cpu, cpl);
+  var sigma = cpk * 3;
+
+  document.getElementById('r-cp').textContent    = cp.toFixed(2);
+  document.getElementById('r-cpk').textContent   = cpk.toFixed(2);
+  document.getElementById('r-sigma').textContent = sigma.toFixed(1) + '\u03c3';
+
+  document.getElementById('f-usl').textContent = usl;
+  document.getElementById('f-lsl').textContent = lsl;
+  document.getElementById('f-std').textContent = std;
+  document.getElementById('f-cp').textContent  = cp.toFixed(2);
+  document.getElementById('f-cpu').textContent = cpu.toFixed(2);
+  document.getElementById('f-cpl').textContent = cpl.toFixed(2);
+  document.getElementById('f-cpk').textContent = cpk.toFixed(2);
+
+  document.getElementById('lsl-lbl').textContent  = lsl.toFixed(2);
+  document.getElementById('mean-lbl').textContent = mean.toFixed(2);
+  document.getElementById('usl-lbl').textContent  = usl.toFixed(2);
+
+  // Badge
+  var badge = document.getElementById('sigma-badge');
+  var cpkVal = cpk;
+  if (cpkVal >= 2.0) {
+    badge.textContent = 'Six Sigma — Exceptional';
+    badge.style.background = 'rgba(34,197,94,0.15)'; badge.style.color = '#22c55e'; badge.style.border = '1px solid rgba(34,197,94,0.4)';
+  } else if (cpkVal >= 1.67) {
+    badge.textContent = 'World Class';
+    badge.style.background = 'rgba(56,178,172,0.15)'; badge.style.color = '#38b2ac'; badge.style.border = '1px solid rgba(56,178,172,0.4)';
+  } else if (cpkVal >= 1.33) {
+    badge.textContent = 'Capable Process';
+    badge.style.background = 'rgba(246,173,85,0.15)'; badge.style.color = '#f6ad55'; badge.style.border = '1px solid rgba(246,173,85,0.4)';
+  } else if (cpkVal >= 1.0) {
+    badge.textContent = 'Marginal — Improvement Needed';
+    badge.style.background = 'rgba(252,129,129,0.15)'; badge.style.color = '#fc8181'; badge.style.border = '1px solid rgba(252,129,129,0.4)';
+  } else {
+    badge.textContent = 'Not Capable — Urgent Action';
+    badge.style.background = 'rgba(239,68,68,0.15)'; badge.style.color = '#ef4444'; badge.style.border = '1px solid rgba(239,68,68,0.4)';
+  }
+
+  // Benchmark bar
+  var barPct = Math.min(cpkVal / 2.0 * 100, 100);
+  document.getElementById('you-bar').style.width = barPct + '%';
+  document.getElementById('you-val').textContent = cpkVal.toFixed(2);
+
+  // Draw distribution
+  drawDist(usl, lsl, mean, std);
+}
+
+calc();
+window.addEventListener('resize', calc);
+</script>
+
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebApplication","name":"Cp Cpk Calculator","description":"Free online process capability calculator. Calculate Cp and Cpk indices with Six Sigma interpretation and visual distribution chart.","applicationCategory":"CalculatorApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+</script>
+
+</body>
+</html>
