@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PERT Calculator — Free Project Duration Estimation Tool Online</title>
+<meta name="description" content="Calculate PERT project task duration instantly. Enter optimistic, most likely, and pessimistic estimates to get expected duration and standard deviation. Free project management calculator.">
+<meta name="keywords" content="PERT calculator, PERT formula, project duration calculator, CPM calculator, optimistic pessimistic estimate, project management calculator online, PERT CPM tool">
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f1117; color: #e2e8f0; min-height: 100vh; font-size: 15px; line-height: 1.6; }
+
+header { background: #161b27; border-bottom: 1px solid #2d3748; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; position: sticky; top: 0; z-index: 100; }
+.logo { font-size: 15px; font-weight: 700; color: #f6ad55; letter-spacing: .04em; text-decoration: none; }
+nav { display: flex; gap: 6px; flex-wrap: wrap; }
+nav a { font-size: 12px; color: #718096; text-decoration: none; padding: 4px 10px; border-radius: 6px; border: 1px solid transparent; transition: all .15s; }
+nav a:hover { border-color: #2d3748; color: #e2e8f0; background: #1a202c; }
+nav a.active { color: #f6ad55; border-color: rgba(246,173,85,0.3); background: rgba(246,173,85,0.08); }
+
+.wrap { max-width: 860px; margin: 0 auto; padding: 0 20px; }
+.hero { text-align: center; padding: 48px 0 32px; }
+.tag { display: inline-block; font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: #f6ad55; background: rgba(246,173,85,0.1); border: 1px solid rgba(246,173,85,0.3); border-radius: 20px; padding: 4px 14px; margin-bottom: 18px; }
+h1 { font-size: clamp(26px,5vw,40px); font-weight: 700; margin-bottom: 12px; line-height: 1.2; }
+h1 em { color: #f6ad55; font-style: normal; }
+.sub { font-size: 15px; color: #718096; max-width: 500px; margin: 0 auto; }
+
+.card { background: #161b27; border: 1px solid #2d3748; border-radius: 14px; padding: 28px; margin-bottom: 20px; }
+.section-label { font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: #718096; margin-bottom: 14px; }
+
+.result-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 24px; }
+.result-item { background: #1a202c; border: 1px solid #2d3748; border-radius: 10px; padding: 14px; text-align: center; }
+.result-item.primary { background: rgba(246,173,85,0.08); border-color: rgba(246,173,85,0.3); }
+.r-label { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #718096; margin-bottom: 6px; }
+.result-item.primary .r-label { color: #f6ad55; }
+.r-val { font-size: 26px; font-weight: 800; color: #e2e8f0; line-height: 1; }
+.result-item.primary .r-val { font-size: 34px; color: #f6ad55; }
+.r-sub { font-size: 11px; color: #4a5568; margin-top: 4px; }
+
+.formula { background: #1a202c; border: 1px solid #2d3748; border-radius: 8px; padding: 14px 16px; font-family: 'Courier New', monospace; font-size: 12px; color: #718096; text-align: center; margin-bottom: 24px; line-height: 2.2; }
+.formula b { color: #e2e8f0; }
+.formula .hi { color: #f6ad55; }
+
+.three-inputs { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom:16px; }
+.input-group { display: flex; flex-direction: column; gap: 6px; }
+.input-label { font-size: 13px; font-weight: 600; color: #e2e8f0; }
+.input-desc { font-size: 11px; color: #4a5568; }
+input[type="number"] { width: 100%; background: #1a202c; border: 1px solid #2d3748; border-radius: 8px; padding: 12px 14px; font-size: 16px; font-weight: 600; color: #f6ad55; outline: none; transition: border-color .2s; -moz-appearance: textfield; }
+input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+input[type="number"]:focus { border-color: #f6ad55; }
+select { background: #1a202c; border: 1px solid #2d3748; border-radius: 8px; padding: 12px 14px; font-size: 14px; color: #e2e8f0; outline: none; cursor: pointer; }
+
+.conf-box { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-top: 16px; }
+.conf-item { background: #1a202c; border: 1px solid #2d3748; border-radius: 8px; padding: 12px; text-align: center; }
+.conf-label { font-size: 11px; color: #718096; margin-bottom: 4px; }
+.conf-val { font-size: 13px; font-weight: 700; color: #e2e8f0; font-family: 'Courier New', monospace; }
+
+.task-table-wrap { overflow-x: auto; }
+table.task-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 580px; }
+table.task-table th { background: #1a202c; color: #718096; font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; padding: 10px; text-align: center; border-bottom: 1px solid #2d3748; }
+table.task-table th:first-child { text-align: left; }
+table.task-table td { padding: 8px 10px; border-bottom: 1px solid #2d3748; text-align: center; vertical-align: middle; }
+table.task-table td:first-child { text-align: left; }
+table.task-table tr:last-child td { border-bottom: none; }
+table.task-table input[type="text"] { width: 100px; background: transparent; border: none; color: #e2e8f0; font-size: 13px; outline: none; font-weight: 500; }
+table.task-table input[type="number"] { width: 65px; padding: 6px 8px; font-size: 13px; }
+.te-cell { font-weight: 700; color: #f6ad55; font-family: 'Courier New', monospace; }
+.sd-cell { font-weight: 600; color: #38b2ac; font-family: 'Courier New', monospace; }
+.btn { padding: 8px 16px; border-radius: 8px; border: 1px solid #2d3748; background: transparent; color: #718096; font-size: 13px; cursor: pointer; transition: all .15s; }
+.btn:hover { border-color: #f6ad55; color: #f6ad55; }
+.btn-sm { padding: 4px 10px; font-size: 11px; }
+.btn-sm:hover { border-color: #ef4444; color: #ef4444; }
+
+.project-totals { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-top: 16px; }
+.total-item { background: rgba(56,178,172,0.08); border: 1px solid rgba(56,178,172,0.25); border-radius: 10px; padding: 14px; text-align: center; }
+.total-label { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #38b2ac; margin-bottom: 6px; }
+.total-val { font-size: 26px; font-weight: 800; color: #38b2ac; }
+.total-sub { font-size: 11px; color: #4a5568; margin-top: 4px; }
+
+.ad-slot { background: #161b27; border: 1px dashed #2d3748; border-radius: 10px; padding: 20px; text-align: center; font-size: 12px; font-family: monospace; color: #4a5568; margin: 20px 0; }
+
+article { background: #161b27; border: 1px solid #2d3748; border-radius: 14px; padding: 32px; margin-bottom: 20px; }
+article h2 { font-size: 22px; font-weight: 700; margin-bottom: 14px; }
+article h3 { font-size: 16px; font-weight: 600; margin: 22px 0 10px; }
+article p { font-size: 14px; color: #a0aec0; margin-bottom: 14px; line-height: 1.8; }
+article ul { padding-left: 18px; margin-bottom: 14px; }
+article li { font-size: 14px; color: #a0aec0; margin-bottom: 6px; }
+article strong { color: #e2e8f0; }
+article table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 13px; }
+article thead th { background: #1a202c; color: #718096; font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; padding: 10px 12px; text-align: left; border-bottom: 1px solid #2d3748; }
+article tbody td { padding: 10px 12px; color: #a0aec0; border-bottom: 1px solid #2d3748; }
+article tbody td:first-child { color: #e2e8f0; font-weight: 600; }
+article tbody tr:last-child td { border-bottom: none; }
+
+.tools-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(190px,1fr)); gap: 10px; margin-bottom: 36px; }
+.tool-link { background: #161b27; border: 1px solid #2d3748; border-radius: 10px; padding: 14px 16px; text-decoration: none; display: flex; align-items: center; gap: 12px; color: #e2e8f0; transition: border-color .15s; }
+.tool-link:hover { border-color: #f6ad55; background: rgba(246,173,85,0.06); }
+.tool-icon { font-size: 22px; width: 36px; text-align: center; }
+.tool-name { font-size: 13px; font-weight: 600; }
+.tool-desc { font-size: 11px; color: #718096; }
+
+footer { border-top: 1px solid #2d3748; padding: 28px 20px; text-align: center; }
+footer p { font-size: 12px; color: #4a5568; line-height: 1.8; }
+footer a { color: #718096; text-decoration: none; }
+footer a:hover { color: #f6ad55; }
+
+@media (max-width: 600px) {
+  .result-grid { grid-template-columns: 1fr 1fr; }
+  .three-inputs { grid-template-columns: 1fr; }
+  .project-totals { grid-template-columns: 1fr; }
+  .conf-box { grid-template-columns: 1fr; }
+  article { padding: 20px 16px; }
+  nav { display: none; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <a class="logo" href="index.html">&#9881; ENGTOOLBOX</a>
+  <nav>
+    <a href="oee-calculator.html">OEE</a>
+    <a href="takt-time-calculator.html">Takt Time</a>
+    <a href="cpk-calculator.html">Cp/Cpk</a>
+    <a href="eoq-calculator.html">EOQ</a>
+    <a href="index.html">All Tools</a>
+  </nav>
+</header>
+
+<main>
+<div class="wrap">
+
+  <section class="hero">
+    <div class="tag">Project Management Calculator</div>
+    <h1>PERT Calculator<br><em>Project Duration Estimation</em></h1>
+    <p class="sub">Calculate expected task duration and project completion time using PERT three-point estimation. Includes multi-task project planner.</p>
+  </section>
+
+  <!-- SINGLE TASK -->
+  <div class="card">
+    <div class="section-label">Single Task Estimator</div>
+
+    <div class="result-grid">
+      <div class="result-item primary">
+        <div class="r-label">Expected (tE)</div>
+        <div class="r-val" id="r-te">10.0</div>
+        <div class="r-sub" id="r-unit-lbl">days</div>
+      </div>
+      <div class="result-item">
+        <div class="r-label">Std Dev (&sigma;)</div>
+        <div class="r-val" id="r-sd">1.33</div>
+        <div class="r-sub">uncertainty</div>
+      </div>
+      <div class="result-item">
+        <div class="r-label">Variance (&sigma;&sup2;)</div>
+        <div class="r-val" id="r-var">1.78</div>
+        <div class="r-sub">spread</div>
+      </div>
+      <div class="result-item">
+        <div class="r-label">Risk</div>
+        <div class="r-val" id="r-risk" style="font-size:18px;color:#22c55e">Low</div>
+        <div class="r-sub">&sigma;/tE ratio</div>
+      </div>
+    </div>
+
+    <div class="formula">
+      <b>tE</b> = (O + 4M + P) &divide; 6 = (<span class="hi" id="f-o">6</span> + 4&times;<span class="hi" id="f-m">10</span> + <span class="hi" id="f-p">14</span>) &divide; 6 = <b id="f-te">10.0</b><br>
+      <b>&sigma;</b> = (P &minus; O) &divide; 6 = (<span class="hi" id="f-p2">14</span> &minus; <span class="hi" id="f-o2">6</span>) &divide; 6 = <b id="f-sd">1.33</b>
+    </div>
+
+    <div class="three-inputs">
+      <div class="input-group">
+        <div class="input-label" style="color:#22c55e">O — Optimistic</div>
+        <div class="input-desc">Best case scenario</div>
+        <input type="number" id="inp-o" value="6" min="0" step="0.5" oninput="calcSingle()">
+      </div>
+      <div class="input-group">
+        <div class="input-label" style="color:#f6ad55">M — Most Likely</div>
+        <div class="input-desc">Most realistic estimate</div>
+        <input type="number" id="inp-m" value="10" min="0" step="0.5" oninput="calcSingle()">
+      </div>
+      <div class="input-group">
+        <div class="input-label" style="color:#ef4444">P — Pessimistic</div>
+        <div class="input-desc">Worst case scenario</div>
+        <input type="number" id="inp-p" value="14" min="0" step="0.5" oninput="calcSingle()">
+      </div>
+    </div>
+
+    <div class="input-group" style="max-width:180px;margin-bottom:20px">
+      <div class="input-label">Time Unit</div>
+      <select id="inp-unit" onchange="calcSingle();updateProject()">
+        <option value="days">Days</option>
+        <option value="weeks">Weeks</option>
+        <option value="hours">Hours</option>
+        <option value="months">Months</option>
+      </select>
+    </div>
+
+    <div class="section-label">Confidence Intervals</div>
+    <div class="conf-box">
+      <div class="conf-item">
+        <div class="conf-label">68% confidence (&plusmn;1&sigma;)</div>
+        <div class="conf-val" id="ci-68">8.7 – 11.3 days</div>
+      </div>
+      <div class="conf-item">
+        <div class="conf-label">95% confidence (&plusmn;2&sigma;)</div>
+        <div class="conf-val" id="ci-95">7.3 – 12.7 days</div>
+      </div>
+      <div class="conf-item">
+        <div class="conf-label">99.7% confidence (&plusmn;3&sigma;)</div>
+        <div class="conf-val" id="ci-99">6.0 – 14.0 days</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MULTI-TASK -->
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+      <div class="section-label" style="margin-bottom:0">Multi-Task Project Planner</div>
+      <button class="btn" onclick="addTask()">+ Add Task</button>
+    </div>
+
+    <div class="task-table-wrap">
+      <table class="task-table">
+        <thead>
+          <tr>
+            <th>Task Name</th>
+            <th style="color:#22c55e">O</th>
+            <th style="color:#f6ad55">M</th>
+            <th style="color:#ef4444">P</th>
+            <th>tE</th>
+            <th>&sigma;</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="task-body"></tbody>
+      </table>
+    </div>
+
+    <div class="project-totals">
+      <div class="total-item">
+        <div class="total-label">Total Duration</div>
+        <div class="total-val" id="proj-te">43.2</div>
+        <div class="total-sub" id="proj-unit-lbl">days</div>
+      </div>
+      <div class="total-item">
+        <div class="total-label">Project &sigma;</div>
+        <div class="total-val" id="proj-sd">3.14</div>
+        <div class="total-sub">days uncertainty</div>
+      </div>
+      <div class="total-item">
+        <div class="total-label">95% Complete By</div>
+        <div class="total-val" id="proj-95">49.4</div>
+        <div class="total-sub">days (tE + 2&sigma;)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ad-slot">&lt;!-- GOOGLE ADSENSE CODE HERE --&gt;</div>
+
+  <article>
+    <h2>What is PERT?</h2>
+    <p><strong>PERT (Program Evaluation and Review Technique)</strong> is a project management method developed by the US Navy in 1957 for the Polaris submarine missile programme. It uses three time estimates per task to produce a statistically weighted expected duration — directly accounting for uncertainty in project planning.</p>
+
+    <h3>The Three PERT Estimates</h3>
+    <ul>
+      <li><strong>O — Optimistic:</strong> Minimum time if everything goes perfectly. Roughly 1% probability of completing faster.</li>
+      <li><strong>M — Most Likely:</strong> Most realistic duration under normal working conditions.</li>
+      <li><strong>P — Pessimistic:</strong> Maximum time if everything goes wrong. Roughly 1% probability of taking longer.</li>
+    </ul>
+
+    <h3>PERT Formulas</h3>
+    <p><strong>Expected Duration: tE = (O + 4M + P) &divide; 6</strong></p>
+    <p><strong>Standard Deviation: &sigma; = (P &minus; O) &divide; 6</strong></p>
+    <p><strong>Variance: &sigma;&sup2; = [(P &minus; O) &divide; 6]&sup2;</strong></p>
+    <p>For a full project path, total tE = sum of all task tE values. Total &sigma; = square root of the sum of all variances.</p>
+
+    <h3>PERT vs CPM</h3>
+    <table>
+      <thead><tr><th>Feature</th><th>PERT</th><th>CPM</th></tr></thead>
+      <tbody>
+        <tr><td>Time estimates</td><td>Three-point (O, M, P)</td><td>Single deterministic</td></tr>
+        <tr><td>Best for</td><td>R&amp;D, uncertain projects</td><td>Construction, routine projects</td></tr>
+        <tr><td>Output</td><td>Expected duration + uncertainty range</td><td>Critical path + float time</td></tr>
+        <tr><td>Focus</td><td>Time uncertainty management</td><td>Cost-time trade-offs</td></tr>
+      </tbody>
+    </table>
+
+    <h3>How to Use the Multi-Task Planner</h3>
+    <ul>
+      <li>Add all tasks on your critical path</li>
+      <li>The <strong>95% completion date</strong> (tE + 2&sigma;) is a reliable deadline to commit to stakeholders</li>
+      <li>Tasks with high &sigma; relative to tE carry the most scheduling risk — investigate those first</li>
+      <li>Use the single task estimator to quickly check individual activities before adding them to the planner</li>
+    </ul>
+  </article>
+
+  <div class="section-label" style="margin-bottom:12px">Related Industrial Engineering Calculators</div>
+  <div class="tools-grid">
+    <a class="tool-link" href="oee-calculator.html"><span class="tool-icon">&#128200;</span><div><div class="tool-name">OEE Calculator</div><div class="tool-desc">Equipment effectiveness</div></div></a>
+    <a class="tool-link" href="takt-time-calculator.html"><span class="tool-icon">&#9201;</span><div><div class="tool-name">Takt Time</div><div class="tool-desc">Production pacing</div></div></a>
+    <a class="tool-link" href="cpk-calculator.html"><span class="tool-icon">&#128202;</span><div><div class="tool-name">Cp/Cpk</div><div class="tool-desc">Process capability</div></div></a>
+    <a class="tool-link" href="eoq-calculator.html"><span class="tool-icon">&#128230;</span><div><div class="tool-name">EOQ Calculator</div><div class="tool-desc">Order quantity</div></div></a>
+    <a class="tool-link" href="safety-stock-calculator.html"><span class="tool-icon">&#128737;</span><div><div class="tool-name">Safety Stock</div><div class="tool-desc">Inventory buffer</div></div></a>
+    <a class="tool-link" href="cycle-time-calculator.html"><span class="tool-icon">&#128260;</span><div><div class="tool-name">Cycle Time</div><div class="tool-desc">Bottleneck analysis</div></div></a>
+  </div>
+
+  <div class="ad-slot">&lt;!-- SECOND ADSENSE UNIT HERE --&gt;</div>
+
+</div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p><strong style="color:#718096">Engineering Toolbox</strong> — Free industrial engineering calculators<br>
+    <a href="index.html">All Tools</a> &middot; <a href="about.html">About</a></p>
+    <p style="margin-top:8px">Based on PMI PMBOK PERT methodology. Validate critical path with your project team.</p>
+  </div>
+</footer>
+
+<script>
+var tasks = [
+  {name:'Requirements', o:3,  m:5,  p:8 },
+  {name:'Design',       o:5,  m:8,  p:14},
+  {name:'Development',  o:10, m:15, p:25},
+  {name:'Testing',      o:4,  m:6,  p:10},
+  {name:'Deployment',   o:1,  m:2,  p:4 }
+];
+
+function calcSingle() {
+  var o = parseFloat(document.getElementById('inp-o').value) || 0;
+  var m = parseFloat(document.getElementById('inp-m').value) || 0;
+  var p = parseFloat(document.getElementById('inp-p').value) || 0;
+  var unit = document.getElementById('inp-unit').value;
+
+  var te  = (o + 4*m + p) / 6;
+  var sd  = (p - o) / 6;
+  var vr  = sd * sd;
+  var ratio = te > 0 ? sd / te : 0;
+  var risk  = ratio < 0.1 ? 'Low' : ratio < 0.2 ? 'Medium' : 'High';
+  var rCol  = ratio < 0.1 ? '#22c55e' : ratio < 0.2 ? '#f6ad55' : '#ef4444';
+
+  document.getElementById('r-te').textContent   = te.toFixed(1);
+  document.getElementById('r-sd').textContent   = sd.toFixed(2);
+  document.getElementById('r-var').textContent  = vr.toFixed(2);
+  document.getElementById('r-risk').textContent = risk;
+  document.getElementById('r-risk').style.color = rCol;
+  document.getElementById('r-unit-lbl').textContent = unit;
+
+  document.getElementById('f-o').textContent  = o;
+  document.getElementById('f-m').textContent  = m;
+  document.getElementById('f-p').textContent  = p;
+  document.getElementById('f-o2').textContent = o;
+  document.getElementById('f-p2').textContent = p;
+  document.getElementById('f-te').textContent = te.toFixed(1);
+  document.getElementById('f-sd').textContent = sd.toFixed(2);
+
+  document.getElementById('ci-68').textContent = (te-sd).toFixed(1)+' – '+(te+sd).toFixed(1)+' '+unit;
+  document.getElementById('ci-95').textContent = (te-2*sd).toFixed(1)+' – '+(te+2*sd).toFixed(1)+' '+unit;
+  document.getElementById('ci-99').textContent = (te-3*sd).toFixed(1)+' – '+(te+3*sd).toFixed(1)+' '+unit;
+}
+
+function renderTasks() {
+  var unit = document.getElementById('inp-unit').value;
+  var html = '';
+  tasks.forEach(function(t, i) {
+    var te = (t.o + 4*t.m + t.p) / 6;
+    var sd = (t.p - t.o) / 6;
+    html += '<tr>' +
+      '<td><input type="text" value="'+t.name+'" onchange="tasks['+i+'].name=this.value"></td>' +
+      '<td><input type="number" value="'+t.o+'" min="0" step="0.5" oninput="tasks['+i+'].o=parseFloat(this.value)||0;updateProject()"></td>' +
+      '<td><input type="number" value="'+t.m+'" min="0" step="0.5" oninput="tasks['+i+'].m=parseFloat(this.value)||0;updateProject()"></td>' +
+      '<td><input type="number" value="'+t.p+'" min="0" step="0.5" oninput="tasks['+i+'].p=parseFloat(this.value)||0;updateProject()"></td>' +
+      '<td class="te-cell">'+te.toFixed(1)+'</td>' +
+      '<td class="sd-cell">'+sd.toFixed(2)+'</td>' +
+      '<td><button class="btn btn-sm" onclick="removeTask('+i+')">&#10005;</button></td>' +
+      '</tr>';
+  });
+  document.getElementById('task-body').innerHTML = html;
+  updateProject();
+}
+
+function updateProject() {
+  var unit = document.getElementById('inp-unit').value;
+  var totalTE = 0, totalVar = 0;
+  tasks.forEach(function(t) {
+    totalTE  += (t.o + 4*t.m + t.p) / 6;
+    var sd = (t.p - t.o) / 6;
+    totalVar += sd * sd;
+  });
+  var totalSD = Math.sqrt(totalVar);
+  document.getElementById('proj-te').textContent   = totalTE.toFixed(1);
+  document.getElementById('proj-sd').textContent   = totalSD.toFixed(2);
+  document.getElementById('proj-95').textContent   = (totalTE + 2*totalSD).toFixed(1);
+  document.getElementById('proj-unit-lbl').textContent = unit;
+}
+
+function addTask() {
+  tasks.push({name:'New Task', o:1, m:3, p:6});
+  renderTasks();
+}
+
+function removeTask(i) {
+  tasks.splice(i, 1);
+  renderTasks();
+}
+
+calcSingle();
+renderTasks();
+</script>
+
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebApplication","name":"PERT Calculator","description":"Free online PERT project duration calculator with multi-task planner. Calculate expected duration, standard deviation, and confidence intervals.","applicationCategory":"CalculatorApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+</script>
+
+</body>
+</html>
